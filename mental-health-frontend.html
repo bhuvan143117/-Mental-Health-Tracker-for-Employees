@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Predictor</title>
+    <style>
+        :root {
+            --primary: #6c63ff;
+            --secondary: #5a54d4;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            text-align: center;
+            color: var(--primary);
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        header p {
+            text-align: center;
+            color: var(--gray);
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .nav-link {
+            color: var(--primary);
+            text-decoration: none;
+            padding: 8px 15px;
+            margin: 0 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(108, 99, 255, 0.1);
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .result-card {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .result-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 30px;
+            color: var(--dark);
+        }
+        
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .excellent {
+            color: #4caf50;
+        }
+        
+        .good {
+            color: #8bc34a;
+        }
+        
+        .fair {
+            color: #ffc107;
+        }
+        
+        .poor {
+            color: #f44336;
+        }
+        
+        .progress-container {
+            margin-top: 30px;
+        }
+        
+        .progress-item {
+            margin-bottom: 20px;
+        }
+        
+        .progress-item p {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .recommendations {
+            margin-top: 40px;
+            text-align: left;
+        }
+        
+        .recommendations h4 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .recommendations ul {
+            list-style-type: none;
+        }
+        
+        .recommendations li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .recommendations li::before {
+            content: "•";
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Mental Health Predictor</h1>
+            <p>Analyze your daily habits to get insights about your mental wellbeing</p>
+            <nav>
+                <a href="#" class="nav-link" id="predictorLink">Predictor</a>
+                <a href="#" class="nav-link" id="modelPerformanceLink">Model Performance</a>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div id="predictorSection">
+            <div class="dashboard">
+                <div class="card">
+                    <h2>Enter Your Daily Metrics</h2>
+                    <form id="healthForm">
+                    <div class="form-group">
+                        <label for="sleep_time">Sleep Duration (hours)</label>
+                        <input type="number" class="form-control" id="sleep_time" min="0" max="24" step="0.5" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="login_time">Work Login Time (24hr format, e.g. 9 for 9AM)</label>
+                        <input type="number" class="form-control" id="login_time" min="0" max="23" step="0.5" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="logout_time">Work Logout Time (24hr format, e.g. 17 for 5PM)</label>
+                        <input type="number" class="form-control" id="logout_time" min="0" max="23" step="0.5" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="emails_sent">Number of Emails Sent/Received</label>
+                        <input type="number" class="form-control" id="emails_sent" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="exercise_minutes">Exercise Duration (minutes)</label>
+                        <input type="number" class="form-control" id="exercise_minutes" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="healthy_meals">Number of Healthy Meals (0-3)</label>
+                        <input type="number" class="form-control" id="healthy_meals" min="0" max="3" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="water_intake">Water Intake (ml)</label>
+                        <input type="number" class="form-control" id="water_intake" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="social_interactions">Number of Social Interactions</label>
+                        <input type="number" class="form-control" id="social_interactions" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="screen_time">Screen Time (minutes)</label>
+                        <input type="number" class="form-control" id="screen_time" min="0" required>
+                    </div>
+                    
+                    <button type="submit" class="btn">Analyze My Mental Health</button>
+                </form>
+            </div>
+            
+            <div id="resultSection" class="card result-card hidden">
+                <h3>Your Mental Health Assessment</h3>
+                
+                <div id="loading" class="loading hidden">
+                    <div class="loading-spinner"></div>
+                    <p>Analyzing your data...</p>
+                </div>
+                
+                <div id="resultContent" class="hidden">
+                    <div class="result-value" id="predictionResult">Good</div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-item">
+                            <p>
+                                <span>Poor</span>
+                                <span id="poorPercentage">10%</span>
+                            </p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="poorBar" style="width: 10%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <p>
+                                <span>Fair</span>
+                                <span id="fairPercentage">20%</span>
+                            </p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="fairBar" style="width: 20%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <p>
+                                <span>Good</span>
+                                <span id="goodPercentage">40%</span>
+                            </p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="goodBar" style="width: 40%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <p>
+                                <span>Excellent</span>
+                                <span id="excellentPercentage">30%</span>
+                            </p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="excellentBar" style="width: 30%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendations">
+                        <h4>Personalized Recommendations</h4>
+                        <ul id="recommendationsList">
+                            <!-- Recommendations will be added here dynamically -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        
+        <div id="performanceSection" class="hidden">
+            <div class="dashboard">
+                <div class="card">
+                    <h2>Model Performance Metrics</h2>
+                    <p>This section shows the performance metrics of the machine learning model used for mental health predictions.</p>
+                    <div class="performance-metrics-container">
+                        <div class="performance-card">
+                            <h3>Class Metrics</h3>
+                            <img src="http://localhost:5000/visualization/class_metrics" alt="Class Metrics" id="classMetricsImg">
+                        </div>
+                        <div class="performance-card">
+                            <h3>Confusion Matrix</h3>
+                            <img src="http://localhost:5000/visualization/confusion_matrix" alt="Confusion Matrix" id="confusionMatrixImg">
+                        </div>
+                        <div class="performance-card">
+                            <h3>Cross-validation Accuracy</h3>
+                            <img src="http://localhost:5000/visualization/cv_accuracy" alt="CV Accuracy" id="cvAccuracyImg">
+                        </div>
+                        <div class="performance-card">
+                            <h3>Feature Importance</h3>
+                            <img src="http://localhost:5000/visualization/feature_importance" alt="Feature Importance" id="featureImportanceImg">
+                        </div>
+                    </div>
+                    <div class="model-metrics">
+                        <h3>Overall Model Performance</h3>
+                        <div id="modelMetrics">
+                            <p>Loading model metrics...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .performance-metrics-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .performance-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .performance-card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .performance-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        
+        .model-metrics {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .model-metrics h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .metric-label {
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .performance-metrics-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('healthForm');
+            const resultSection = document.getElementById('resultSection');
+            const loading = document.getElementById('loading');
+            const resultContent = document.getElementById('resultContent');
+            
+            // Navigation elements
+            const predictorLink = document.getElementById('predictorLink');
+            const modelPerformanceLink = document.getElementById('modelPerformanceLink');
+            const predictorSection = document.getElementById('predictorSection');
+            const performanceSection = document.getElementById('performanceSection');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading section
+                resultSection.classList.remove('hidden');
+                loading.classList.remove('hidden');
+                resultContent.classList.add('hidden');
+                
+                // Get form values
+                const formData = {
+                    sleep_time: parseFloat(document.getElementById('sleep_time').value),
+                    login_time: parseFloat(document.getElementById('login_time').value),
+                    logout_time: parseFloat(document.getElementById('logout_time').value),
+                    emails_sent: parseInt(document.getElementById('emails_sent').value),
+                    exercise_minutes: parseInt(document.getElementById('exercise_minutes').value),
+                    healthy_meals: parseInt(document.getElementById('healthy_meals').value),
+                    water_intake: parseInt(document.getElementById('water_intake').value),
+                    social_interactions: parseInt(document.getElementById('social_interactions').value),
+                    screen_time: parseInt(document.getElementById('screen_time').value)
+                };
+                
+                // In a real application, this would call the Python API
+                // For demo purposes, we'll simulate the API call with a timeout
+                setTimeout(() => {
+                    // This is where you would make the actual API call
+                    // fetch('http://localhost:5000/predict', {
+                    //     method: 'POST',
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //     },
+                    //     body: JSON.stringify(formData),
+                    // })
+                    // .then(response => response.json())
+                    // .then(data => displayResults(data))
+                    // .catch(error => console.error('Error:', error));
+                    
+                    // For demo purposes, simulate a response
+                    const simulatedResponse = predictMentalHealth(formData);
+                    displayResults(simulatedResponse);
+                }, 1500);
+            });
+            
+            // Function to display the results
+            function displayResults(data) {
+                // Hide loading, show results
+                loading.classList.add('hidden');
+                resultContent.classList.remove('hidden');
+                
+                // Update prediction text and styling
+                const predictionResult = document.getElementById('predictionResult');
+                predictionResult.textContent = data.prediction;
+                predictionResult.className = 'result-value ' + data.prediction.toLowerCase();
+                
+                // Update progress bars
+                const probabilities = data.probabilities;
+                updateProgressBar('poorBar', 'poorPercentage', probabilities['Poor']);
+                updateProgressBar('fairBar', 'fairPercentage', probabilities['Fair']);
+                updateProgressBar('goodBar', 'goodPercentage', probabilities['Good']);
+                updateProgressBar('excellentBar', 'excellentPercentage', probabilities['Excellent']);
+                
+                // Generate recommendations
+                generateRecommendations(data);
+            }
+            
+            // Function to update a progress bar
+            function updateProgressBar(barId, percentageId, value) {
+                const percentage = Math.round(value * 100);
+                document.getElementById(barId).style.width = percentage + '%';
+                document.getElementById(percentageId).textContent = percentage + '%';
+            }
+            
+            // Function to generate recommendations based on the input data and prediction
+            function generateRecommendations(data) {
+                const recommendationsList = document.getElementById('recommendationsList');
+                recommendationsList.innerHTML = '';
+                
+                const inputData = data.input_data;
+                const recommendations = [];
+                
+                // Sleep recommendations
+                if (inputData.sleep_time < 7) {
+                    recommendations.push('Try to get at least 7-8 hours of sleep each night to improve your mental health.');
+                } else if (inputData.sleep_time > 9) {
+                    recommendations.push('Consider maintaining a sleep schedule of 7-9 hours for optimal mental health.');
+                }
+                
+                // Work-life balance
+                const workHours = Math.abs(inputData.logout_time - inputData.login_time);
+                if (workHours > 9) {
+                    recommendations.push('Consider reducing your work hours to improve work-life balance.');
+                }
+                
+                // Email management
+                if (inputData.emails_sent > 50) {
+                    recommendations.push('Consider batching email responses to reduce digital overwhelm.');
+                }
+                
+                // Exercise recommendations
+                if (inputData.exercise_minutes < 30) {
+                    recommendations.push('Aim for at least 30 minutes of moderate exercise daily for better mental wellbeing.');
+                }
+                
+                // Diet recommendations
+                if (inputData.healthy_meals < 2) {
+                    recommendations.push('Try to incorporate more nutritious meals into your daily diet.');
+                }
+                
+                // Hydration
+                if (inputData.water_intake < 2000) {
+                    recommendations.push('Increase your water intake to at least 2 liters (2000ml) daily.');
+                }
+                
+                // Social interactions
+                if (inputData.social_interactions < 5) {
+                    recommendations.push('Consider increasing your social interactions for better mental health.');
+                }
+                
+                // Screen time
+                if (inputData.screen_time > 360) { // More than 6 hours
+                    recommendations.push('Try to reduce screen time and take regular breaks to prevent digital fatigue.');
+                }
+                
+                // Add generic recommendations if we have few specific ones
+                if (recommendations.length < 3) {
+                    recommendations.push('Practice mindfulness or meditation for at least 10 minutes daily.');
+                    recommendations.push('Spend time in nature regularly to boost your mood and reduce stress.');
+                }
+                
+                // Add recommendations to the list
+                recommendations.forEach(rec => {
+                    const li = document.createElement('li');
+                    li.textContent = rec;
+                    recommendationsList.appendChild(li);
+                });
+            }
+            
+            // Navigation between sections
+            predictorLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                predictorSection.classList.remove('hidden');
+                performanceSection.classList.add('hidden');
+                predictorLink.style.fontWeight = 'bold';
+                modelPerformanceLink.style.fontWeight = 'normal';
+            });
+            
+            modelPerformanceLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                predictorSection.classList.add('hidden');
+                performanceSection.classList.remove('hidden');
+                predictorLink.style.fontWeight = 'normal';
+                modelPerformanceLink.style.fontWeight = 'bold';
+                
+                // Load model performance metrics
+                loadModelPerformance();
+            });
+            
+            // Function to load model performance metrics
+            function loadModelPerformance() {
+                const modelMetricsDiv = document.getElementById('modelMetrics');
+                
+                // In a real application, this would fetch from the Flask API
+                // fetch('http://localhost:5000/performance')
+                //    .then(response => response.json())
+                //    .then(data => displayModelMetrics(data))
+                //    .catch(error => {
+                //        console.error('Error fetching model metrics:', error);
+                //        modelMetricsDiv.innerHTML = '<p>Error loading model metrics. Please try again later.</p>';
+                //    });
+                
+                // For demo purposes, we'll simulate the API response
+                const simulatedMetrics = {
+                    'accuracy': 0.92,
+                    'precision': {'Poor': 0.89, 'Fair': 0.91, 'Good': 0.94, 'Excellent': 0.93},
+                    'recall': {'Poor': 0.87, 'Fair': 0.90, 'Good': 0.95, 'Excellent': 0.91},
+                    'f1': {'Poor': 0.88, 'Fair': 0.90, 'Good': 0.94, 'Excellent': 0.92}
+                };
+                
+                displayModelMetrics(simulatedMetrics);
+            }
+            
+            // Function to display model metrics
+            function displayModelMetrics(data) {
+                const modelMetricsDiv = document.getElementById('modelMetrics');
+                let html = `
+                    <div class="metric-row">
+                        <span class="metric-label">Overall Accuracy:</span>
+                        <span>${(data.accuracy * 100).toFixed(2)}%</span>
+                    </div>
+                `;
+                
+                html += '<h4 style="margin-top: 15px; margin-bottom: 10px;">Class-wise Metrics</h4>';
+                
+                const classes = Object.keys(data.precision);
+                classes.forEach(cls => {
+                    html += `
+                        <div style="margin-top: 10px; padding: 10px; background-color: white; border-radius: 5px;">
+                            <h5 style="color: var(--primary); margin-bottom: 10px;">${cls}</h5>
+                            <div class="metric-row">
+                                <span class="metric-label">Precision:</span>
+                                <span>${(data.precision[cls] * 100).toFixed(2)}%</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Recall:</span>
+                                <span>${(data.recall[cls] * 100).toFixed(2)}%</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">F1 Score:</span>
+                                <span>${(data.f1[cls] * 100).toFixed(2)}%</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                modelMetricsDiv.innerHTML = html;
+            }
+            
+            // Simulated ML model prediction function for demo purposes
+            function predictMentalHealth(data) {
+                // This is a simplified model to simulate the backend ML prediction
+                // In a real application, this would come from the Python backend
+                
+                // Create a simple score based on the input parameters
+                let score = 0;
+                
+                // Sleep score (ideal 7-8 hours)
+                const sleepDeviation = Math.abs(data.sleep_time - 7.5);
+                score += (2 - Math.min(sleepDeviation, 2)) * 0.2;
+                
+                // Work hours (lower is better)
+                const workHours = Math.abs(data.logout_time - data.login_time);
+                score += (1 - Math.min(workHours / 12, 1)) * 0.15;
+                
+                // Email load (lower is better)
+                score += (1 - Math.min(data.emails_sent / 100, 1)) * 0.1;
+                
+                // Exercise (more is better up to 60 mins)
+                score += Math.min(data.exercise_minutes / 60, 1) * 0.15;
+                
+                // Healthy meals (more is better)
+                score += (data.healthy_meals / 3) * 0.1;
+                
+                // Water intake (closer to 2500ml is better)
+                const waterDeviation = Math.abs(data.water_intake - 2500) / 2500;
+                score += (1 - Math.min(waterDeviation, 1)) * 0.1;
+                
+                // Social interactions (more is better up to 15)
+                score += Math.min(data.social_interactions / 15, 1) * 0.1;
+                
+                // Screen time (less is better)
+                score += (1 - Math.min(data.screen_time / 600, 1)) * 0.1;
+                
+                // Normalize score to be between 0 and 1
+                score = Math.max(0, Math.min(score, 1));
+                
+                // Generate simulated probabilities
+                let probabilities = {
+                    'Poor': 0,
+                    'Fair': 0,
+                    'Good': 0,
+                    'Excellent': 0
+                };
+                
+                // Basic probability distribution based on score
+                if (score < 0.3) {
+                    probabilities = {
+                        'Poor': 0.6 + Math.random() * 0.2,
+                        'Fair': 0.3 - Math.random() * 0.1,
+                        'Good': 0.1 - Math.random() * 0.05,
+                        'Excellent': Math.random() * 0.05
+                    };
+                } else if (score < 0.5) {
+                    probabilities = {
+                        'Poor': 0.2 + Math.random() * 0.1,
+                        'Fair': 0.5 + Math.random() * 0.2,
+                        'Good': 0.2 - Math.random() * 0.1,
+                        'Excellent': 0.1 - Math.random() * 0.05
+                    };
+                } else if (score < 0.75) {
+                    probabilities = {
+                        'Poor': 0.1 - Math.random() * 0.05,
+                        'Fair': 0.2 - Math.random() * 0.1,
+                        'Good': 0.5 + Math.random() * 0.2,
+                        'Excellent': 0.2 + Math.random() * 0.1
+                    };
+                } else {
+                    probabilities = {
+                        'Poor': Math.random() * 0.05,
+                        'Fair': 0.1 - Math.random() * 0.05,
+                        'Good': 0.3 - Math.random() * 0.1,
+                        'Excellent': 0.6 + Math.random() * 0.2
+                    };
+                }
+                
+                // Normalize probabilities to sum to 1
+                const probSum = Object.values(probabilities).reduce((a, b) => a + b, 0);
+                Object.keys(probabilities).forEach(key => {
+                    probabilities[key] = probabilities[key] / probSum;
+                });
+                
+                // Determine prediction based on highest probability
+                let maxProb = 0;
+                let prediction = '';
+                Object.keys(probabilities).forEach(key => {
+                    if (probabilities[key] > maxProb) {
+                        maxProb = probabilities[key];
+                        prediction = key;
+                    }
+                });
+                
+                return {
+                    prediction: prediction,
+                    probabilities: probabilities,
+                    input_data: data
+                };
+            }
+        });
+    </script>
+</body>
+</html>
